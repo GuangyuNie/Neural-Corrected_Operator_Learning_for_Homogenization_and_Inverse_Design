@@ -8,7 +8,7 @@ class effective_conductivity_pde:
     def __init__(self, microstructure, sigma0, sigma1):
         self.ms = microstructure.astype(np.int8)
         self.n = self.ms.shape[0]
-        assert self.ms.shape[0] == self.ms.shape[1], '需要正方网格'
+        assert self.ms.shape[0] == self.ms.shape[1], 'Microstructure must use a square grid.'
         self.s0 = float(sigma0)
         self.s1 = float(sigma1)
         self.L = self.n - 1
@@ -36,11 +36,6 @@ class effective_conductivity_pde:
             return 1.0 - i / self.L
 
     def _assemble_A_b_mixed(self, sigma, drive='x'):
-        """
-        混合边界：
-          drive='x'：左右 Dirichlet（线性势差），上下 Neumann（无通量）
-          drive='y'：上下 Dirichlet（线性势差），左右 Neumann（无通量）
-        """
         n = self.n
         idx = lambda i, j: i * n + j
         A = lil_matrix((n * n, n * n))
@@ -85,11 +80,6 @@ class effective_conductivity_pde:
         return phi.reshape(self.n, self.n)
 
     def _flux_faces(self, sigma, phi):
-        """
-        面通量（与离散一致）：
-          Jx(i, j+1/2) = -sigma_e * (phi[i, j+1] - phi[i, j])
-          Jy(i+1/2, j) = -sigma_s * (phi[i+1, j] - phi[i, j])
-        """
         sig_e = self._harmonic(sigma[:, :-1], sigma[:, 1:])
         Jx = -sig_e * (phi[:, 1:] - phi[:, :-1])
         sig_s = self._harmonic(sigma[:-1, :], sigma[1:, :])
