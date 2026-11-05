@@ -1,4 +1,4 @@
-"""Minimal two-dimensional conductivity components, extracted from the research code."""
+"""Two-dimensional conductivity SCE and coordinate kernels."""
 import torch
 from torch import nn
 
@@ -217,7 +217,7 @@ class AnalyticLaplaceT2D(nn.Module):
 
 class MLPResidual2x2(nn.Module):
     """
-    Learns ΔT(coords) directly with an MLP.
+    Coordinate MLP supplying the componentwise tanh modulation in NCO.
     Input coords: (B,2) in (y,x)
     Output: (B,2,2) complex64 (imag=0)
     """
